@@ -1,6 +1,11 @@
 ### Plotting function
-costPlots <- function(object, filename = "elasticIsing.pdf", width= 8, height= 5)
+costPlots <- function(object, filename = "elasticIsing.pdf", width= 8, height= 5,  theta = 25, phi = 30, ticktype = "simple",
+                      accuracy = TRUE # If TRUE, plot accuracy instead
+                      )
 {
+  lambda <- object$lambda
+  alpha <- object$alpha
+    
   stopifnot(is(object, "elasticIsing"))
   pdf(filename,width=width,height=height)
   ###
@@ -9,6 +14,12 @@ costPlots <- function(object, filename = "elasticIsing.pdf", width= 8, height= 5
     costName <- dimnames(object$costs)[[3]][c]
     
     Cost <- object$costs[,,c]
+    if (accuracy){
+      Cost <- -Cost
+      lab <- "Accuracy"
+    } else {
+      lab <- "Cost"
+    }
     rownames(Cost) <- colnames(Cost) <- NULL
     
     melted <- melt(Cost)
@@ -43,15 +54,16 @@ costPlots <- function(object, filename = "elasticIsing.pdf", width= 8, height= 5
     # min <- which(Cost == min(Cost), arr.ind = TRUE)
     # lines3d(x= lambda[min[1]], y = alpha[min[2]], z = range(Cost), lwd = 3, col = "red")
     
+#     persp(lambda[order(lambda)],alpha,Cost[order(lambda),], col = preCols, 
+#           expand = 0.5 , shade = 0, border = NA,
+#           xlab = "Lambda", ylab = "Alpha", zlab = "Cost", theta = 130, phi = 30,
+#           main = costName)
+#     
     persp(lambda[order(lambda)],alpha,Cost[order(lambda),], col = preCols, 
           expand = 0.5 , shade = 0, border = NA,
-          xlab = "Lambda", ylab = "Alpha", zlab = "Cost", theta = 130, phi = 30,
-          main = costName)
-    
-    persp(lambda[order(lambda)],alpha,Cost[order(lambda),], col = preCols, 
-          expand = 0.5 , shade = 0, border = NA,
-          xlab = "Lambda", ylab = "Alpha", zlab = "Cost", theta = 25, phi = 30,
-          main = costName, ticktype = "detailed")
+          xlab = "Lambda", ylab = "Alpha", zlab = lab, theta = theta, phi = phi,
+          main = costName, ticktype =ticktype) -> res
+
   }
   dev.off()
 }
