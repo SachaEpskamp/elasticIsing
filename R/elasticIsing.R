@@ -30,6 +30,9 @@ elasticIsing <- function(
   predictionCost <- array(NA, c(Nl, Na,Nc))
   dimnames(predictionCost) <- list(lambda,alpha,cost)
   
+  # Initialize progress bar:
+  pb <- txtProgressBar(min = 0, max = Na * K, initial = 0, style = 3)
+  
   # For every alpha:
   for (a in seq_len(Na)){
     
@@ -48,13 +51,17 @@ elasticIsing <- function(
       for (l in seq_len(Nl)){
         PredictedValues[[l]][inBlock,] <- predictIsing(foldEstimates$networks[[l]], foldEstimates$thresholds[[l]], data[inBlock,])
       }
+      
+      setTxtProgressBar(pb, (a-1)*K + k)
     }
+    
     
     # Compute prediction cost:
     for (c in seq_len(Nc)){
       predictionCost[,a,c] <- sapply(PredictedValues, function(p) do.call(cost[c],list(data, p))) 
     }
   }
+  close(pb)
   
   # Select values with minimal predictive cost:
   Mininals <- list()
