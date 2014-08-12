@@ -1,0 +1,3 @@
+export(elasticIsing, costPlots, optimalGraph)
+import(magrittr,cvTools,IsingSampler,reshape2,glmnet,qgraph)
+S3method(plot, elasticIsing)

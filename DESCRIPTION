@@ -1,0 +1,12 @@
+Package: elasticIsing
+Type: Package
+Title: Ising network estimation using Elastic net and k-fold cross-validation
+Version: 0.1
+Date: 2014-08-12
+Author: Sacha Epskamp
+Maintainer: Sacha Epskamp <mail@sachaepskamp.com>
+Description: 
+License: GPL-2
+Imports: magrittr, glmnet, reshape2, IsingSampler, cvTools, qgraph
+LinkingTo: Rcpp
+URL: github.com/SachaEpskamp/IsingSampler
