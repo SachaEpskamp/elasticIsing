@@ -10,3 +10,6 @@ Imports: magrittr, glmnet, reshape2, IsingSampler, cvTools, qgraph, akima
 Suggests: IsingSampler
 LinkingTo: Rcpp
 URL: github.com/SachaEpskamp/IsingSampler
+Description: Uses k-fold cross-validation and elastic-net regularization to estimate the
+              Ising model on binary data. Produces 3D plots of the cost function as a function
+              of the tuning parameter in addition to the optimal network structure.
