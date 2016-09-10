@@ -1,7 +1,9 @@
 elasticIsing <- function(
   data, # Binary data
-  lambda = exp(seq(log(1), log(0.001), length = 100)), # Vector of penalty lambdas to test (NEEDS TO BE IMPROVED!!!)
-  alpha = seq(0,1,length=100), # Vector of alphas to test.
+  nLambda = 100,
+  lambda.min.ratio = 0.01, # min lambda is selected by taking min.ratio * lambda_max(alpha=1)
+  # lambda, # Vector of penalty lambdas to test (can be missing)
+  alpha = seq(0,1,length=10), # Vector of alphas to test.
   cost = c('mspe','rmspe','mape','tmspe','rtmspe'), # Cost functions to apply
   K = 10, # number of folds
   and = TRUE
@@ -11,12 +13,17 @@ elasticIsing <- function(
   # Parameters:
   Np <- nrow(data) # Number of persons
   Ni <- ncol(data) # Number of items
-  Nl <- length(lambda) # Number of lambdas
-  Na <- length(alpha) # Number of alphas
   Nc <- length(cost) # Number of cost functions
   
-  # Make lambda decreasing:
-  lambda <- sort(lambda, decreasing = TRUE)
+  # Sort alpha 1 to 0:
+  alpha <- sort(alpha,decreasing = TRUE)
+  
+  # Lengths:
+  Nl <- nLambda # Number of lambdas
+  Na <- length(alpha) # Number of alphas
+  
+  # Lambda matrix (to fill):
+  lambdaMatrix <- matrix(NA, Nl, Na)
   
   # Create folds:
   Folds <- cvTools::cvFolds(Np, K)
@@ -28,13 +35,33 @@ elasticIsing <- function(
   
   # Matrix to store prediction cost:
   predictionCost <- array(NA, c(Nl, Na,Nc))
-  dimnames(predictionCost) <- list(lambda,alpha,cost)
+  dimnames(predictionCost) <- list(NULL,alpha,cost)
   
   # Initialize progress bar:
   pb <- txtProgressBar(min = 0, max = Na * K, initial = 0, style = 3)
   
+  
   # For every alpha:
   for (a in seq_len(Na)){
+    # Compute lambdas:
+    maxLambda <- max(sapply(seq_len(Ni),function(i){
+      Res <- glmnet(data[,-i,drop=FALSE],data[,i],family = "binomial", alpha = alpha[a],nlambda = 4)
+      max(Res$lambda)
+      }))
+    
+    if (a==1){
+      # Compute min lambda:
+      minLambda <- maxLambda * lambda.min.ratio
+    }
+    
+    # Lambda sequence:
+    lambda <- 10^seq(log10(maxLambda), log10(minLambda), len=Nl)
+      
+    # Make lambda decreasing:
+    lambda <- sort(lambda, decreasing = TRUE)
+    
+    # Fill matrix:
+    lambdaMatrix[,a] <- lambda
     
     # List with predicted values for every lambda:
     PredictedValues <- rep(list(matrix(NA,Np, Ni)), Nl)
@@ -81,7 +108,7 @@ elasticIsing <- function(
   Res <- list(
     minimal = Mininals,
     costs = predictionCost,
-    lambda = lambda,
+    lambdaMatrix = lambdaMatrix,
     alpha = alpha,
     data = data,
     and = and)

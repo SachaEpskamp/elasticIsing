@@ -13,11 +13,11 @@ optimalGraph <- function(object, cost){
   }
   
   cat("Optimal graph(s) found at:\n")
-  print(data.frame(lambda = object$lambda[opt[,1]], alpha = object$alpha[opt[,2]]))
+  print(data.frame(lambda = object$lambdaMatrix[opt[,1],opt[,2]], alpha = object$alpha[opt[,2]]))
   
   Res <- list()
   for (i in seq_len(nrow(opt))){
-    Res[[i]] <- elasticIsingInner(object$data, object$lambda[opt[i,1]], object$alpha[opt[i,2]], and = object$and)
+    Res[[i]] <- elasticIsingInner(object$data, object$lambdaMatrix[opt[i,1],opt[i,2]], object$alpha[opt[i,2]], and = object$and)
     Res[[i]]$thresholds <- Res[[i]]$thresholds[[1]]
     Res[[i]]$graph <- Res[[i]]$networks[[1]]
     Res[[i]] <- Res[[i]][names(Res[[i]])!="networks"]

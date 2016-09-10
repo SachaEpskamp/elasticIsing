@@ -3,7 +3,7 @@ costPlots <- function(object, filename = "elasticIsing.pdf", width= 8, height= 5
                       accuracy = TRUE # If TRUE, plot accuracy instead
                       )
 {
-  lambda <- object$lambda
+  lambdaMatrix <- object$lambdaMatrix
   alpha <- object$alpha
     
   stopifnot(is(object, "elasticIsing"))
@@ -23,25 +23,24 @@ costPlots <- function(object, filename = "elasticIsing.pdf", width= 8, height= 5
     rownames(Cost) <- colnames(Cost) <- NULL
     
     melted <- melt(Cost)
+ 
     names(melted) <- c("lambda","alpha","cost")
     # melted$lambda <- lambdavec[melted$lambda] %>% round(3) %>% as.character
     # melted$alpha <- alphavec[melted$alpha]%>% round(3) %>% as.character
-    melted$lambda <- lambda[melted$lambda]
+    for (i in seq_len(nrow(melted))){
+      melted$lambda[i] <- lambdaMatrix[melted$lambda[i],melted$alpha[i]]
+    }
     melted$alpha <- alpha[melted$alpha]
     
+    
+ 
     #   precision <- -Cost+max(Cost)
     #   precision <- precision / max(precision)
     #   precision <- round(precision*99) + 1
     cols <-  terrain.colors(100)
-    #   preCols <- matrix(NA,nrow(precision),ncol(precision))
-    #   preCols[] <- cols[c(precision)]
-    
-    z <- Cost[order(lambda),]
-    nrz <- nrow(z)
-    ncz <- ncol(z)
-    zfacet <- z[-1, -1] + z[-1, -ncz] + z[-nrz, -1] + z[-nrz, -ncz]
-    
-    preCols <- cols[cut(zfacet,100)]
+#       preCols <- matrix(NA,nrow(precision),ncol(precision))
+#       preCols[] <- cols[c(precision)]
+
     # preCols <- preCols[nrow(preCols):1,]
     #   library(rgl)
     # surface3d(lambda,alpha,ElasticRes$cost, color = terrain.colors(100)[precision], xlim=c(0,1))
@@ -59,11 +58,39 @@ costPlots <- function(object, filename = "elasticIsing.pdf", width= 8, height= 5
 #           xlab = "Lambda", ylab = "Alpha", zlab = "Cost", theta = 130, phi = 30,
 #           main = costName)
 #     
-    persp(lambda[order(lambda)],alpha,Cost[order(lambda),], col = preCols, 
+    # On 100 by 100 grid, compute tiles:
+    # interpolation
+    interpolated <- akima::interp(x = log(melted$lambda), y = melted$alpha, z = melted$cost,
+                                  xo = seq(log(min(melted$lambda)),log(max(melted$lambda)),length=100),
+                                  yo = sort(unique(melted$alpha)))
+
+    # Fill in NAs of strictly regularized models with lowest accuracy or highest cost.
+    if (accuracy){
+      interpolated$z[is.na(interpolated$z)] <- min(interpolated$z[!is.na(interpolated$z)])
+    } else {
+      interpolated$z[is.na(interpolated$z)] <- max(interpolated$z[!is.na(interpolated$z)])
+    }
+
+    
+    # Colors:
+    z <- interpolated$z[order(interpolated$x),]
+    nrz <- nrow(z)
+    ncz <- ncol(z)
+    zfacet <- z[-1, -1] + z[-1, -ncz] + z[-nrz, -1] + z[-nrz, -ncz]
+    
+    preCols <- cols[cut(zfacet,100)]
+    
+    persp(interpolated$x,interpolated$y,interpolated$z, col = preCols, 
           expand = 0.5 , shade = 0, border = NA,
-          xlab = "Lambda", ylab = "Alpha", zlab = lab, theta = theta, phi = phi,
+          xlab = "Lambda (log)", ylab = "Alpha", zlab = lab, theta = theta, phi = phi,
           main = costName, ticktype =ticktype) -> res
+#     
+#     persp(lambda[order(lambda)],alpha,Cost[order(lambda),], col = preCols, 
+#           expand = 0.5 , shade = 0, border = NA,
+#           xlab = "Lambda", ylab = "Alpha", zlab = lab, theta = theta, phi = phi,
+#           main = costName, ticktype =ticktype) -> res
 
   }
   dev.off()
+  message(paste0("Output stored in ",getwd(),"/",filename))
 }
