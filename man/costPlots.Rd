@@ -8,7 +8,9 @@
 This function creates a PDF file with the 3D plots of cost functions given alpha and lambda. By default, accuracy is shown, which is defined as -cost.
 }
 \usage{
-costPlots(object, filename = "elasticIsing.pdf", width = 8, height = 5, theta = 25, phi = 30, ticktype = "simple", accuracy = TRUE)
+costPlots(object, filename = "elasticIsing.pdf", width = 8, 
+    height = 5, theta = 25, phi = 30, ticktype = "simple", 
+    accuracy = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

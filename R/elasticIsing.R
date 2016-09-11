@@ -38,7 +38,7 @@ elasticIsing <- function(
   dimnames(predictionCost) <- list(NULL,alpha,cost)
   
   # Initialize progress bar:
-  pb <- txtProgressBar(min = 0, max = Na * K, initial = 0, style = 3)
+  pb <- utils::txtProgressBar(min = 0, max = Na * K, initial = 0, style = 3)
   
   
   # For every alpha:
@@ -79,7 +79,7 @@ elasticIsing <- function(
         PredictedValues[[l]][inBlock,] <- predictIsing(foldEstimates$networks[[l]], foldEstimates$thresholds[[l]], data[inBlock,])
       }
       
-      setTxtProgressBar(pb, (a-1)*K + k)
+      utils::setTxtProgressBar(pb, (a-1)*K + k)
     }
     
     

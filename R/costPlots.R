@@ -3,6 +3,11 @@ costPlots <- function(object, filename = "elasticIsing.pdf", width= 8, height= 5
                       accuracy = TRUE # If TRUE, plot accuracy instead
                       )
 {
+  # Check for akima:
+  if (!"akima" %in% rownames(installed.packages())){
+    stop("'akima' package not installed")
+  }
+  
   lambdaMatrix <- object$lambdaMatrix
   alpha <- object$alpha
     

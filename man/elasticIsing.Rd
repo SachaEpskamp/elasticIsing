@@ -8,7 +8,10 @@ Estimate Ising model using elastic-net and cross-validation.
 Uses the glmnet package for elastic-net computation and the cvTools package for cross-validation error. Use \code{\link{optimalGraph}} to select the optimal graph.
 }
 \usage{
-elasticIsing(data, nLambda = 100, lambda.min.ratio = 0.01, alpha = seq(0, 1, length = 10), cost = c("mspe", "rmspe", "mape", "tmspe", "rtmspe"), K = 10, and = TRUE)
+elasticIsing(data, nLambda = 100, lambda.min.ratio = 0.01, 
+          alpha = seq(0, 1, length = 10), cost = c("mspe", 
+          "rmspe", "mape", "tmspe", "rtmspe"), K = 10, 
+          and = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -61,6 +64,7 @@ Sacha Epskamp <mail@sachaepskamp.com>
 \code{\link{optimalGraph}}, \code{\link{costPlots}}
 }
 \examples{
+library("IsingSampler")
 
 # Input:
 P <- 5 # Number of nodes
@@ -69,7 +73,7 @@ nSample <- 250 # Number of samples
 # Chain graph:
 Graph <- matrix(0, P, P)
 for (i in 1:P){
-  Graph[i,i%%P+1] <- Graph[i%%P+1,i] <- 0.5
+  Graph[i,i\%\%P+1] <- Graph[i\%\%P+1,i] <- 0.5
 }
 
 # Thresholds:
